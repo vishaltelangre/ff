@@ -1,0 +1,15 @@
+[package]
+name = "ff"
+version = "0.1.0"
+authors = ["Vishal Telangre <the@vishaltelangre.com>"]
+license = "Unlicense OR MIT"
+
+[dependencies]
+walkdir = "2"
+ansi_term = "0.11"
+regex = "1"
+
+[dependencies.clap]
+version = "2.32"
+default-features = false
+features = [ "suggestions" ]
