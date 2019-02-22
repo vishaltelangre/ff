@@ -89,7 +89,7 @@ fn ensure_root_path_is_walkable(path: &str) {
 fn working_dir_path() -> String {
     match env::current_dir() {
         Ok(path) => path.display().to_string(),
-        Err(_) => String::from("./"),
+        Err(_) => String::from("."),
     }
 }
 
@@ -126,6 +126,13 @@ fn matching_paths(paths: Vec<DirEntry>, reg_exp: Regex, search_hidden: bool) -> 
 }
 
 fn print_path(path: String, reg_exp: Regex) {
+    let working_dir_path = working_dir_path();
+    let path = if path.contains(&working_dir_path) {
+        path.replace(&working_dir_path, ".")
+    } else {
+        path
+    };
+
     if atty::isnt(Stream::Stdout) {
         println!("{}", path);
     } else {
