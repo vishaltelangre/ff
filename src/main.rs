@@ -1,37 +1,91 @@
 extern crate ansi_term;
 extern crate atty;
 extern crate clap;
+extern crate lazy_static;
 extern crate regex;
 extern crate walkdir;
 
 use ansi_term::Colour::{Green, Red};
 use atty::Stream;
-use clap::{crate_authors, crate_version, App};
+use clap::{crate_authors, crate_version, App, Arg, ArgMatches};
+use lazy_static::lazy_static;
 use regex::Regex;
+use std::env;
+use std::path::Path;
 use std::process;
 use walkdir::{DirEntry, WalkDir};
 
+const ABOUT: &str = "
+Find Files (ff) utility recursively searches the files whose names match the
+specified RegExp pattern in the provided directory (defaults to the current
+directory if not provided).";
+
 fn main() {
-    let matches = App::new("ff")
-        .version(crate_version!())
-        .author(crate_authors!())
-        .about("Find Files. Yea. Period.")
-        .max_term_width(80)
-        .args_from_usage("<PATTERN> 'Search for files matching file name with this pattern'")
-        .get_matches();
+    let args = parse_args();
 
-    if let Some(pattern) = matches.value_of("PATTERN") {
-        let raw_pattern = format!(r#"{}"#, pattern).to_string();
+    let pattern = args.value_of("PATTERN").unwrap();
+    let root_path = args.value_of("ROOT_PATH").unwrap();
+    let raw_pattern = format!(r#"{}"#, pattern).to_string();
 
-        match Regex::new(&raw_pattern) {
-            Ok(reg_exp) => lookup(reg_exp),
-            Err(_) => handle_erroneous_pattern(raw_pattern),
-        }
+    ensure_root_path_is_walkable(root_path);
+
+    match Regex::new(&raw_pattern) {
+        Ok(reg_exp) => lookup(root_path, reg_exp),
+        Err(_) => handle_erroneous_pattern(raw_pattern),
     }
 }
 
-fn lookup(reg_exp: Regex) {
-    let root_path = ".";
+fn parse_args() -> ArgMatches<'static> {
+    lazy_static! {
+        static ref WORKING_DIR_PATH: String = working_dir_path();
+    }
+
+    App::new("ff")
+        .version(crate_version!())
+        .author(crate_authors!())
+        .about(ABOUT)
+        .max_term_width(80)
+        .arg(
+            Arg::with_name("PATTERN")
+                .help("Find files whose name matches with this pattern")
+                .index(1)
+                .required(true),
+        )
+        .arg(
+            Arg::with_name("ROOT_PATH")
+                .help("Path to the directory to search files inside")
+                .index(2)
+                .default_value(&WORKING_DIR_PATH)
+                .required(false),
+        )
+        .get_matches()
+}
+
+fn ensure_root_path_is_walkable(path: &str) {
+    let erroneous_path = if atty::is(Stream::Stderr) {
+        Red.paint(path).to_string()
+    } else {
+        String::from(path)
+    };
+
+    if !Path::new(path).is_dir() {
+        eprintln!(
+            "The specified ROOT_PATH {} is either not accessible or is not a directory",
+            erroneous_path
+        );
+
+        process::exit(1);
+    }
+}
+
+fn working_dir_path() -> String {
+    match env::current_dir() {
+        Ok(path) => path.display().to_string(),
+        Err(_) => String::from("./"),
+    }
+}
+
+fn lookup(root_path: &str, reg_exp: Regex) {
     let paths = accessible_paths(root_path);
 
     for entry in matching_paths(paths, reg_exp.clone()) {
