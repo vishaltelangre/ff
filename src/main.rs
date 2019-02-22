@@ -33,19 +33,17 @@ fn main() {
 
                     if atty::isnt(Stream::Stdout) {
                         println!("{}", file_path);
-
-                        process::exit(0);
-                    }
-
-                    match regex_pattern.find(&file_path) {
-                        Some(result) => {
-                            let matched_slice = &file_path[result.start()..result.end()];
-                            let colored_match = Green.bold().paint(matched_slice).to_string();
-                            let file_path = &file_path.replace(matched_slice, &colored_match);
-                            println!("{}", file_path);
-                        }
-                        None => {
-                            println!("{}", file_path);
+                    } else {
+                        match regex_pattern.find(&file_path) {
+                            Some(result) => {
+                                let matched_slice = &file_path[result.start()..result.end()];
+                                let colored_match = Green.bold().paint(matched_slice).to_string();
+                                let file_path = &file_path.replace(matched_slice, &colored_match);
+                                println!("{}", file_path);
+                            }
+                            None => {
+                                println!("{}", file_path);
+                            }
                         }
                     }
                 }
@@ -57,10 +55,7 @@ fn main() {
                     formatted_pattern
                 };
 
-                eprintln!(
-                    "Failed to parse the provided PATTERN: {}",
-                    erroneous_pattern
-                );
+                eprintln!("Failed to parse the provided PATTERN: {}",erroneous_pattern);
 
                 process::exit(1);
             }
