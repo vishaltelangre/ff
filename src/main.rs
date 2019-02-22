@@ -1,13 +1,15 @@
 extern crate ansi_term;
+extern crate atty;
 extern crate clap;
 extern crate regex;
 extern crate walkdir;
 
 use ansi_term::Colour::Red;
+use atty::Stream;
 use clap::{crate_authors, crate_version, App};
 use regex::Regex;
 use std::process;
-use walkdir::{WalkDir};
+use walkdir::WalkDir;
 
 fn main() {
     let matches = App::new("ff")
@@ -31,10 +33,13 @@ fn main() {
                 }
             }
             Err(_err) => {
-                eprintln!(
-                    "Failed to parse the provided PATTERN: {}",
+                let erronous_pattern = if atty::is(Stream::Stderr) {
+                    Red.paint(formatted_pattern).to_string()
+                } else {
                     formatted_pattern
-                );
+                };
+
+                eprintln!("Failed to parse the provided PATTERN: {}" , erronous_pattern);
                 process::exit(1);
             }
         }
