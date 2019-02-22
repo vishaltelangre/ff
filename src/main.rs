@@ -9,7 +9,7 @@ use ansi_term::Colour::{Green, Red};
 use atty::Stream;
 use clap::{crate_authors, crate_version, App, Arg, ArgMatches};
 use lazy_static::lazy_static;
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 use std::env;
 use std::path::Path;
 use std::process;
@@ -26,12 +26,16 @@ fn main() {
     let pattern = args.value_of("PATTERN").unwrap();
     let root_path = args.value_of("ROOT_PATH").unwrap();
     let search_hidden = args.is_present("search-hidden");
+    let case_sensitive = args.is_present("case-sensitive");
 
     ensure_root_path_is_walkable(root_path);
 
     let raw_pattern = format!(r#"{}"#, pattern).to_string();
+    let regex_builder = RegexBuilder::new(&raw_pattern)
+        .case_insensitive(!case_sensitive)
+        .build();
 
-    match Regex::new(&raw_pattern) {
+    match regex_builder {
         Ok(reg_exp) => lookup(root_path, reg_exp, search_hidden),
         Err(_) => handle_erroneous_pattern(raw_pattern),
     }
@@ -49,7 +53,7 @@ fn parse_args() -> ArgMatches<'static> {
         .max_term_width(80)
         .arg(
             Arg::with_name("PATTERN")
-                .help("Find files whose name matches with this pattern.")
+                .help("Find files whose name (path) matches this substring or the regular expression.")
                 .index(1)
                 .required(true),
         )
@@ -65,6 +69,12 @@ fn parse_args() -> ArgMatches<'static> {
                 .help("Search hidden files and directories. By default, hidden files and directories are skipped.")
                 .short("H")
                 .long("search-hidden"),
+        )
+        .arg(
+            Arg::with_name("case-sensitive")
+                .help("Search case sensitively. By default, files are searched case insensitively.")
+                .short("s")
+                .long("case-sensitive"),
         )
         .get_matches()
 }
