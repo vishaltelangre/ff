@@ -25,12 +25,14 @@ fn main() {
 
     let pattern = args.value_of("PATTERN").unwrap();
     let root_path = args.value_of("ROOT_PATH").unwrap();
-    let raw_pattern = format!(r#"{}"#, pattern).to_string();
+    let search_hidden = args.is_present("search-hidden");
 
     ensure_root_path_is_walkable(root_path);
 
+    let raw_pattern = format!(r#"{}"#, pattern).to_string();
+
     match Regex::new(&raw_pattern) {
-        Ok(reg_exp) => lookup(root_path, reg_exp),
+        Ok(reg_exp) => lookup(root_path, reg_exp, search_hidden),
         Err(_) => handle_erroneous_pattern(raw_pattern),
     }
 }
@@ -47,16 +49,22 @@ fn parse_args() -> ArgMatches<'static> {
         .max_term_width(80)
         .arg(
             Arg::with_name("PATTERN")
-                .help("Find files whose name matches with this pattern")
+                .help("Find files whose name matches with this pattern.")
                 .index(1)
                 .required(true),
         )
         .arg(
             Arg::with_name("ROOT_PATH")
-                .help("Path to the directory to search files inside")
+                .help("Path to the directory to search files inside.")
                 .index(2)
                 .default_value(&WORKING_DIR_PATH)
                 .required(false),
+        )
+        .arg(
+            Arg::with_name("search-hidden")
+                .help("Search hidden files and directories. By default, hidden files and directories are skipped.")
+                .short("H")
+                .long("search-hidden"),
         )
         .get_matches()
 }
@@ -85,27 +93,36 @@ fn working_dir_path() -> String {
     }
 }
 
-fn lookup(root_path: &str, reg_exp: Regex) {
+fn lookup(root_path: &str, reg_exp: Regex, search_hidden: bool) {
     let paths = accessible_paths(root_path);
 
-    for entry in matching_paths(paths, reg_exp.clone()) {
+    for entry in matching_paths(paths, reg_exp.clone(), search_hidden) {
         let file_path = entry.path().display().to_string();
 
         print_path(file_path, reg_exp.clone());
     }
 }
 
-fn accessible_paths(root_path: &str) -> impl Iterator<Item = DirEntry> {
+fn accessible_paths(root_path: &str) -> Vec<DirEntry> {
     let walker = WalkDir::new(root_path).into_iter();
 
-    walker.filter_map(|e| e.ok())
+    walker.filter_map(|e| e.ok()).collect()
 }
 
-fn matching_paths(
-    paths: impl Iterator<Item = DirEntry>,
-    reg_exp: Regex,
-) -> impl Iterator<Item = DirEntry> {
-    paths.filter(move |e| reg_exp.is_match(&e.path().display().to_string()))
+fn matching_paths(paths: Vec<DirEntry>, reg_exp: Regex, search_hidden: bool) -> Vec<DirEntry> {
+    let paths: Vec<DirEntry> = paths
+        .into_iter()
+        .filter(|e| reg_exp.is_match(&e.path().display().to_string()))
+        .collect();
+
+    if search_hidden {
+        paths
+    } else {
+        paths
+            .into_iter()
+            .filter(|e| !e.path().display().to_string().contains("/."))
+            .collect()
+    }
 }
 
 fn print_path(path: String, reg_exp: Regex) {
