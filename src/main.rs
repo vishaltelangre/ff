@@ -9,7 +9,7 @@ use atty::Stream;
 use clap::{crate_authors, crate_version, App};
 use regex::Regex;
 use std::process;
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 fn main() {
     let matches = App::new("ff")
@@ -21,44 +21,68 @@ fn main() {
         .get_matches();
 
     if let Some(pattern) = matches.value_of("PATTERN") {
-        let formatted_pattern = format!(r#"{}"#, pattern).to_string();
-        match Regex::new(&formatted_pattern) {
-            Ok(regex_pattern) => {
-                let walker = WalkDir::new(".").into_iter();
-                let ok_entries = walker.filter_map(|e| e.ok());
-                for entry in
-                    ok_entries.filter(|e| regex_pattern.is_match(&e.path().display().to_string()))
-                {
-                    let file_path = entry.path().display().to_string();
+        let raw_pattern = format!(r#"{}"#, pattern).to_string();
 
-                    if atty::isnt(Stream::Stdout) {
-                        println!("{}", file_path);
-                    } else {
-                        match regex_pattern.find(&file_path) {
-                            Some(result) => {
-                                let matched_slice = &file_path[result.start()..result.end()];
-                                let colored_match = Green.bold().paint(matched_slice).to_string();
-                                let file_path = &file_path.replace(matched_slice, &colored_match);
-                                println!("{}", file_path);
-                            }
-                            None => {
-                                println!("{}", file_path);
-                            }
-                        }
-                    }
-                }
+        match Regex::new(&raw_pattern) {
+            Ok(reg_exp) => lookup(reg_exp),
+            Err(_) => handle_erroneous_pattern(raw_pattern),
+        }
+    }
+}
+
+fn lookup(reg_exp: Regex) {
+    let root_path = ".";
+    let paths = accessible_paths(root_path);
+
+    for entry in matching_paths(paths, reg_exp.clone()) {
+        let file_path = entry.path().display().to_string();
+
+        print_path(file_path, reg_exp.clone());
+    }
+}
+
+fn accessible_paths(root_path: &str) -> impl Iterator<Item = DirEntry> {
+    let walker = WalkDir::new(root_path).into_iter();
+
+    walker.filter_map(|e| e.ok())
+}
+
+fn matching_paths(
+    paths: impl Iterator<Item = DirEntry>,
+    reg_exp: Regex,
+) -> impl Iterator<Item = DirEntry> {
+    paths.filter(move |e| reg_exp.is_match(&e.path().display().to_string()))
+}
+
+fn print_path(path: String, reg_exp: Regex) {
+    if atty::isnt(Stream::Stdout) {
+        println!("{}", path);
+    } else {
+        match reg_exp.find(&path) {
+            Some(result) => {
+                let matched_str = &path[result.start()..result.end()];
+                let colored_match = Green.bold().paint(matched_str).to_string();
+                let path = &path.replace(matched_str, &colored_match);
+                println!("{}", path);
             }
-            Err(_) => {
-                let erroneous_pattern = if atty::is(Stream::Stderr) {
-                    Red.paint(formatted_pattern).to_string()
-                } else {
-                    formatted_pattern
-                };
-
-                eprintln!("Failed to parse the provided PATTERN: {}",erroneous_pattern);
-
-                process::exit(1);
+            None => {
+                println!("{}", path);
             }
         }
     }
+}
+
+fn handle_erroneous_pattern(raw_pattern: String) {
+    let erroneous_pattern = if atty::is(Stream::Stderr) {
+        Red.paint(raw_pattern).to_string()
+    } else {
+        raw_pattern
+    };
+
+    eprintln!(
+        "Failed to parse the provided PATTERN: {}",
+        erroneous_pattern
+    );
+
+    process::exit(1);
 }
