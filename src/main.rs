@@ -36,7 +36,7 @@ fn main() {
         .build();
 
     match regex_builder {
-        Ok(reg_exp) => lookup(root_path, reg_exp, search_hidden),
+        Ok(reg_exp) => lookup(root_path, &reg_exp, search_hidden),
         Err(_) => handle_erroneous_pattern(raw_pattern),
     }
 }
@@ -103,13 +103,13 @@ fn working_dir_path() -> String {
     }
 }
 
-fn lookup(root_path: &str, reg_exp: Regex, search_hidden: bool) {
+fn lookup(root_path: &str, reg_exp: &Regex, search_hidden: bool) {
     let paths = accessible_paths(root_path);
 
-    for entry in matching_paths(paths, reg_exp.clone(), search_hidden) {
+    for entry in matching_paths(paths, reg_exp, search_hidden) {
         let file_path = entry.path().display().to_string();
 
-        print_path(file_path, reg_exp.clone());
+        print_path(file_path, reg_exp);
     }
 }
 
@@ -119,7 +119,7 @@ fn accessible_paths(root_path: &str) -> Vec<DirEntry> {
     walker.filter_map(|e| e.ok()).collect()
 }
 
-fn matching_paths(paths: Vec<DirEntry>, reg_exp: Regex, search_hidden: bool) -> Vec<DirEntry> {
+fn matching_paths(paths: Vec<DirEntry>, reg_exp: &Regex, search_hidden: bool) -> Vec<DirEntry> {
     let paths: Vec<DirEntry> = paths
         .into_iter()
         .filter(|e| reg_exp.is_match(&e.path().display().to_string()))
@@ -135,7 +135,7 @@ fn matching_paths(paths: Vec<DirEntry>, reg_exp: Regex, search_hidden: bool) -> 
     }
 }
 
-fn print_path(path: String, reg_exp: Regex) {
+fn print_path(path: String, reg_exp: &Regex) {
     let working_dir_path = working_dir_path();
     let path = if path.contains(&working_dir_path) {
         path.replace(&working_dir_path, ".")
