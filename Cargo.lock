@@ -43,8 +43,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "ff"
-version = "0.1.0"
+name = "find-files"
+version = "0.1.1"
 dependencies = [
  "ansi_term 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "atty 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",

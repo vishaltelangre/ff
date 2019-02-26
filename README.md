@@ -12,7 +12,9 @@ Dual-licensed under [MIT](LICENSE-MIT) or the [UNLICENSE](UNLICENSE).
 
 ## Installation
 
-Download the latest executable `ff` binary from the [releases](https://github.com/BurntSushi/ripgrep/releases) page.
+Download the latest executable `ff` binary for your platform from the [releases](https://github.com/vishaltelangre/ff/releases) page.
+
+If you're a Rust programmer, download and install `ff` command using `cargo install find-files`.
 
 ## Usage
 

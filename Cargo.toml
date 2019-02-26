@@ -1,8 +1,11 @@
 [package]
-name = "ff"
-version = "0.1.0"
+name = "find-files"
+version = "0.1.1"
+description = "Find Files (ff) utility recursively searches the files whose names match the specified RegExp pattern in the provided directory (defaults to the current directory if not provided)."
 authors = ["Vishal Telangre <the@vishaltelangre.com>"]
 license = "Unlicense OR MIT"
+readme = "README.md"
+repository = "https://github.com/vishaltelangre/ff"
 
 [dependencies]
 walkdir = "2"
@@ -18,3 +21,7 @@ features = [ "suggestions", "color" ]
 
 [build-dependencies]
 lazy_static = "1.1.0"
+
+[[bin]]
+name = "ff"
+path = "src/main.rs"
