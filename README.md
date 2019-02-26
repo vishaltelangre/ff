@@ -12,7 +12,7 @@ Dual-licensed under [MIT](LICENSE-MIT) or the [UNLICENSE](UNLICENSE).
 
 ## Installation
 
-Download the latest executable `ff` binary from the [releases](https://github.com/BurntSushi/ripgrep/releases) page.
+Download the latest executable `ff` binary from the [releases](https://github.com/vishaltelangre/ff/releases) page.
 
 ## Usage
 
