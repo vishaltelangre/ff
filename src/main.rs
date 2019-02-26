@@ -17,9 +17,7 @@ mod walker;
 fn main() {
     let args = Args::parse();
 
-    for path_item in Walker::new(&args).matching_paths() {
-        let path = path_item.path().display().to_string();
-
+    for path in Walker::new(&args).matching_paths() {
         PathPrinter::new(path, &args.reg_exp).print()
     }
 }
