@@ -23,7 +23,7 @@ If you're a Rust programmer, download and install `ff` command using `cargo inst
 
 ```
 USAGE:
-    ff [FLAGS] <PATTERN> [ROOT_PATH]
+    ff [FLAGS] [OPTIONS] <PATTERN> [ROOT_PATH]
 
 FLAGS:
     -s, --case-sensitive      Search case sensitively. By default, files are
@@ -38,10 +38,15 @@ FLAGS:
                               in the search results.
     -V, --version             Prints version information
 
+OPTIONS:
+    -j, --threads <threads>    The approximate number of threads to use. A value
+                               of 0 (which is the default) results in thread
+                               count set to available CPU cores.
+
 ARGS:
     <PATTERN>      Find files whose name (path) matches this substring or
                    the regular expression.
-    <ROOT_PATH>    Path to the directory to search files inside. [default:
+    <ROOT_PATH>    Path to the directory to search files inside.[default:
                    `$PWD`]
 ```
 ## Examples

@@ -1,7 +1,9 @@
 use ansi_term::Colour::Red;
 use atty::Stream;
 use clap;
+use num_cpus;
 use regex::{Regex, RegexBuilder};
+use std::cmp;
 use std::path::Path;
 use std::process;
 
@@ -13,6 +15,7 @@ pub struct Args {
     pub ignore_gitignore: bool,
     pub ignore_hidden: bool,
     pub case_sensitive: bool,
+    pub threads: usize,
 }
 
 struct ArgMatchesWrapper {
@@ -90,6 +93,17 @@ impl ArgMatchesWrapper {
         }
     }
 
+    fn threads(&self) -> usize {
+        let matches = &self.matches;
+        let threads = clap::value_t!(matches.value_of("threads"), usize).unwrap_or(0);
+
+        if threads == 0 {
+            cmp::min(12, num_cpus::get())
+        } else {
+            threads
+        }
+    }
+
     fn to_args(&self) -> Args {
         Args {
             root_path: self.root_path(),
@@ -97,6 +111,7 @@ impl ArgMatchesWrapper {
             ignore_gitignore: self.should_ignore_gitignore_files(),
             case_sensitive: self.is_case_sensitive(),
             reg_exp: self.search_pattern(),
+            threads: self.threads(),
         }
     }
 }

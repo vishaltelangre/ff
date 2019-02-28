@@ -48,6 +48,13 @@ pub fn app() -> ArgMatches<'static> {
                 .short("s")
                 .long("case-sensitive"),
         )
+        .arg(
+            Arg::with_name("threads")
+                .help("The approximate number of threads to use. A value of 0 (which is the default) results in thread count set to available CPU cores.")
+                .short("j")
+                .takes_value(true)
+                .long("threads"),
+        )
         .get_matches()
 }
 
