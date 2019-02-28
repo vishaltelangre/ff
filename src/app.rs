@@ -37,6 +37,12 @@ pub fn app() -> ArgMatches<'static> {
                 .long("ignore-hidden"),
         )
         .arg(
+            Arg::with_name("ignore-gitignore")
+                .help("Ignore searching files and directories specified in .gitignore. By default, the files and directories specified in .gitignore are included in the search results.")
+                .short("G")
+                .long("ignore-gitignore"),
+        )
+        .arg(
             Arg::with_name("case-sensitive")
                 .help("Search case sensitively. By default, files are searched case insensitively.")
                 .short("s")

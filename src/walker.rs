@@ -1,8 +1,7 @@
-use walkdir::WalkDir;
-
 use crate::app;
 use crate::args::Args;
 use crate::path_printer::PathPrinter;
+use ignore::WalkBuilder;
 
 pub struct Walker<'a> {
     args: &'a Args,
@@ -14,7 +13,12 @@ impl<'a> Walker<'a> {
     }
 
     pub fn walk_and_print(&self) {
-        for path_entry in WalkDir::new(&self.args.root_path).into_iter() {
+        let walker = WalkBuilder::new(&self.args.root_path)
+            .hidden(self.args.ignore_hidden)
+            .git_ignore(self.args.ignore_gitignore)
+            .build();
+
+        for path_entry in walker {
             if let Ok(entry) = path_entry {
                 let path = entry.path().display().to_string();
                 let path = self.truncate_working_dir_path(path);
@@ -37,14 +41,6 @@ impl<'a> Walker<'a> {
     }
 
     fn is_match(&self, path: &str) -> bool {
-        if self.args.reg_exp.is_match(path) {
-            if self.args.ignore_hidden {
-                !path.contains("/.")
-            } else {
-                true
-            }
-        } else {
-            false
-        }
+        self.args.reg_exp.is_match(path)
     }
 }
