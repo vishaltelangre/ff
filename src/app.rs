@@ -31,10 +31,10 @@ pub fn app() -> ArgMatches<'static> {
                 .required(false),
         )
         .arg(
-            Arg::with_name("search-hidden")
-                .help("Search hidden files and directories. By default, hidden files and directories are skipped.")
+            Arg::with_name("ignore-hidden")
+                .help("Ignore searching hidden files and directories. By default, hidden files and directories are included in the search results.")
                 .short("H")
-                .long("search-hidden"),
+                .long("ignore-hidden"),
         )
         .arg(
             Arg::with_name("case-sensitive")

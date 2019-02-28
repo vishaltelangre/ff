@@ -10,7 +10,7 @@ use crate::app;
 pub struct Args {
     pub reg_exp: Regex,
     pub root_path: String,
-    pub search_hidden: bool,
+    pub ignore_hidden: bool,
     pub case_sensitive: bool,
 }
 
@@ -33,8 +33,8 @@ impl ArgMatchesWrapper {
         self.matches.is_present("case-sensitive")
     }
 
-    fn should_search_hidden_files(&self) -> bool {
-        self.matches.is_present("search-hidden")
+    fn should_ignore_hidden_files(&self) -> bool {
+        self.matches.is_present("ignore-hidden")
     }
 
     fn search_pattern(&self) -> Regex {
@@ -88,7 +88,7 @@ impl ArgMatchesWrapper {
     fn to_args(&self) -> Args {
         Args {
             root_path: self.root_path(),
-            search_hidden: self.should_search_hidden_files(),
+            ignore_hidden: self.should_ignore_hidden_files(),
             case_sensitive: self.is_case_sensitive(),
             reg_exp: self.search_pattern(),
         }

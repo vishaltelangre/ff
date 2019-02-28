@@ -19,20 +19,20 @@ impl<'a> Walker<'a> {
     }
 
     pub fn matching_paths(&self) -> Vec<String> {
-        let paths = self
+        let paths: Vec<String> = self
             .accessible_paths()
             .into_iter()
             .map(|p| self.truncate_working_dir_path(p.path().display().to_string()))
             .filter(|path| self.args.reg_exp.is_match(path))
             .collect();
 
-        if self.args.search_hidden {
-            paths
-        } else {
+        if self.args.ignore_hidden {
             paths
                 .into_iter()
                 .filter(|path| !path.contains("/."))
                 .collect()
+        } else {
+            paths
         }
     }
 
