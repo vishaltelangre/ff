@@ -1,7 +1,8 @@
-use walkdir::{DirEntry, WalkDir};
+use walkdir::WalkDir;
 
-use crate::args::Args;
 use crate::app;
+use crate::args::Args;
+use crate::path_printer::PathPrinter;
 
 pub struct Walker<'a> {
     args: &'a Args,
@@ -12,27 +13,16 @@ impl<'a> Walker<'a> {
         Walker { args }
     }
 
-    fn accessible_paths(&self) -> Vec<DirEntry> {
-        let iterator = WalkDir::new(&self.args.root_path).into_iter();
+    pub fn walk_and_print(&self) {
+        for path_entry in WalkDir::new(&self.args.root_path).into_iter() {
+            if let Ok(entry) = path_entry {
+                let path = entry.path().display().to_string();
+                let path = self.truncate_working_dir_path(path);
 
-        iterator.filter_map(|e| e.ok()).collect()
-    }
-
-    pub fn matching_paths(&self) -> Vec<String> {
-        let paths: Vec<String> = self
-            .accessible_paths()
-            .into_iter()
-            .map(|p| self.truncate_working_dir_path(p.path().display().to_string()))
-            .filter(|path| self.args.reg_exp.is_match(path))
-            .collect();
-
-        if self.args.ignore_hidden {
-            paths
-                .into_iter()
-                .filter(|path| !path.contains("/."))
-                .collect()
-        } else {
-            paths
+                if self.is_match(&path) {
+                    PathPrinter::new(path, &self.args.reg_exp).print();
+                }
+            }
         }
     }
 
@@ -43,6 +33,18 @@ impl<'a> Walker<'a> {
             path.replace(&working_dir_path, ".")
         } else {
             path.clone()
+        }
+    }
+
+    fn is_match(&self, path: &str) -> bool {
+        if self.args.reg_exp.is_match(path) {
+            if self.args.ignore_hidden {
+                !path.contains("/.")
+            } else {
+                true
+            }
+        } else {
+            false
         }
     }
 }

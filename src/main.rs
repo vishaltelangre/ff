@@ -6,7 +6,6 @@ extern crate regex;
 extern crate walkdir;
 
 use crate::args::Args;
-use crate::path_printer::PathPrinter;
 use crate::walker::Walker;
 
 mod app;
@@ -17,7 +16,5 @@ mod walker;
 fn main() {
     let args = Args::parse();
 
-    for path in Walker::new(&args).matching_paths() {
-        PathPrinter::new(path, &args.reg_exp).print()
-    }
+    Walker::new(&args).walk_and_print();
 }

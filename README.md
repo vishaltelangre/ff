@@ -26,8 +26,9 @@ FLAGS:
     -s, --case-sensitive    Search case sensitively. By default, files are
                             searched case insensitively.
     -h, --help              Prints help information
-    -H, --search-hidden     Search hidden files and directories. By default,
-                            hidden files and directories are skipped.
+    -H, --ignore-hidden     Ignore searching hidden files and directories. By
+                            default, hidden files and directories are included
+                            in the search results.
     -V, --version           Prints version information
 
 ARGS:
