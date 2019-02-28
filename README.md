@@ -1,5 +1,8 @@
 # Find Files (ff)
 
+[![Build Status](https://travis-ci.org/vishaltelangre/ff.svg?branch=master)](https://travis-ci.org/vishaltelangre/ff)
+[![Version info](https://img.shields.io/crates/v/find-files.svg)](https://crates.io/crates/find-files)
+
 Find Files (ff) utility recursively searches the files whose names match the
 specified RegExp pattern in the provided directory (defaults to the current
 directory if not provided).
@@ -81,8 +84,14 @@ ff \.js ./spec
 - Search a file which is expected to be inside hidden `.git` directory whose name contains `commit` or something similar.
 
 ```bash
-$ ff git.*commit -H
+$ ff git.*commit
 
 ./.git/COMMIT_EDITMSG
 # omitted other results
+```
+
+- Ignore hidden files and directories.
+
+```
+ff emacs -H
 ```
