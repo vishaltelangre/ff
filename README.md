@@ -26,13 +26,17 @@ USAGE:
     ff [FLAGS] <PATTERN> [ROOT_PATH]
 
 FLAGS:
-    -s, --case-sensitive    Search case sensitively. By default, files are
-                            searched case insensitively.
-    -h, --help              Prints help information
-    -H, --ignore-hidden     Ignore searching hidden files and directories. By
-                            default, hidden files and directories are included
-                            in the search results.
-    -V, --version           Prints version information
+    -s, --case-sensitive      Search case sensitively. By default, files are
+                              searched case insensitively.
+    -h, --help                Prints help information
+    -G, --ignore-gitignore    Ignore searching files and directories specified
+                              in .gitignore. By default, the files and
+                              directories specified in .gitignore are included
+                              in the search results.
+    -H, --ignore-hidden       Ignore searching hidden files and directories. By
+                              default, hidden files and directories are included
+                              in the search results.
+    -V, --version             Prints version information
 
 ARGS:
     <PATTERN>      Find files whose name (path) matches this substring or
