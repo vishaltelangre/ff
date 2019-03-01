@@ -55,6 +55,13 @@ pub fn app() -> ArgMatches<'static> {
                 .takes_value(true)
                 .long("threads"),
         )
+        .arg(
+            Arg::with_name("exclude")
+                .help("Exclude files and directories matching this regular expression from the search results.")
+                .short("x")
+                .takes_value(true)
+                .long("exclude")
+        )
         .get_matches()
 }
 
