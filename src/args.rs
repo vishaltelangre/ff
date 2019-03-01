@@ -16,6 +16,7 @@ pub struct Args {
     pub ignore_hidden: bool,
     pub case_sensitive: bool,
     pub threads: usize,
+    pub exclude_reg_exp: Option<Regex>,
 }
 
 struct ArgMatchesWrapper {
@@ -46,30 +47,7 @@ impl ArgMatchesWrapper {
     }
 
     fn search_pattern(&self) -> Regex {
-        let pattern = self.matches.value_of("PATTERN").unwrap();
-        let raw_pattern = format!(r#"{}"#, pattern).to_string();
-        let regex_builder = RegexBuilder::new(&raw_pattern)
-            .case_insensitive(!self.is_case_sensitive())
-            .build();
-
-        match regex_builder {
-            Ok(reg_exp) => reg_exp,
-
-            Err(_) => {
-                let erroneous_pattern = if atty::is(Stream::Stderr) {
-                    Red.paint(raw_pattern).to_string()
-                } else {
-                    raw_pattern
-                };
-
-                eprintln!(
-                    "Failed to parse the provided PATTERN: {}",
-                    erroneous_pattern
-                );
-
-                process::exit(1);
-            }
-        }
+        self.parse_regex_from_pattern_of("PATTERN", "Failed to parse the provided PATTERN:")
     }
 
     fn root_path(&self) -> String {
@@ -104,6 +82,43 @@ impl ArgMatchesWrapper {
         }
     }
 
+    fn exclude_reg_exp(&self) -> Option<Regex> {
+        if self.matches.is_present("exclude") {
+            let reg_exp = self.parse_regex_from_pattern_of(
+                "exclude",
+                "Failed to parse the pattern provided to the '--exclude (-x)' option:",
+            );
+
+            Some(reg_exp)
+        } else {
+            None
+        }
+    }
+
+    fn parse_regex_from_pattern_of(&self, arg_name: &str, error_message: &str) -> Regex {
+        let input_pattern = self.matches.value_of(arg_name).unwrap();
+        let formatted_pattern = format!(r#"{}"#, input_pattern).to_string();
+        let regex_builder = RegexBuilder::new(&formatted_pattern)
+            .case_insensitive(!self.is_case_sensitive())
+            .build();
+
+        match regex_builder {
+            Ok(reg_exp) => reg_exp,
+
+            Err(_) => {
+                let erroneous_pattern = if atty::is(Stream::Stderr) {
+                    Red.paint(formatted_pattern).to_string()
+                } else {
+                    formatted_pattern
+                };
+
+                eprintln!("{} {}", error_message, erroneous_pattern);
+
+                process::exit(1);
+            }
+        }
+    }
+
     fn to_args(&self) -> Args {
         Args {
             root_path: self.root_path(),
@@ -112,6 +127,7 @@ impl ArgMatchesWrapper {
             case_sensitive: self.is_case_sensitive(),
             reg_exp: self.search_pattern(),
             threads: self.threads(),
+            exclude_reg_exp: self.exclude_reg_exp(),
         }
     }
 }

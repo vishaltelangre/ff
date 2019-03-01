@@ -37,14 +37,15 @@ impl<'a> Walker<'a> {
 
         walker.run(|| {
             let tx = tx.clone();
-            let regex = self.args.reg_exp.clone();
+            let reg_exp = self.args.reg_exp.clone();
+            let maybe_exclude_reg_exp = self.args.exclude_reg_exp.clone();
 
             Box::new(move |path_entry| {
                 if let Ok(entry) = path_entry {
                     let path = entry.path().display().to_string();
                     let path = truncate_working_dir_path(path);
 
-                    if is_match(&regex, &path) {
+                    if is_match(&reg_exp, &maybe_exclude_reg_exp, &path) {
                         match tx.send(path) {
                             Ok(_) => WalkState::Continue,
                             Err(_) => WalkState::Quit,
@@ -71,8 +72,13 @@ impl<'a> Walker<'a> {
         }
     }
 }
-fn is_match(reg_exp: &Regex, path: &str) -> bool {
-    reg_exp.is_match(path)
+fn is_match(reg_exp: &Regex, maybe_exclude_reg_exp: &Option<Regex>, path: &str) -> bool {
+    let is_path_matched = reg_exp.is_match(path);
+
+    match maybe_exclude_reg_exp {
+        Some(exclude_reg_exp) => is_path_matched && !exclude_reg_exp.is_match(path),
+        None => is_path_matched,
+    }
 }
 
 fn truncate_working_dir_path(path: String) -> String {
