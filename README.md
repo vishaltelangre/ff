@@ -19,6 +19,51 @@ Download the latest precompiled executable `ff` binary for your platform from th
 
 If you're a Rust programmer, download and install `ff` command using `cargo install find-files`. To update to a newer version, use the `--force` flag.
 
+# Benchmark Results
+
+```
+$ hyperfine                                \
+    --warmup 3                             \
+    --export-markdown benchmark-results.md \
+    "find . -iregex '.*[0-9]\.jpg$'"       \
+    "find . -iname '*[0-9].jpg'"           \
+    "fd -HI '.*[0-9]\.jpg$'"               \
+    "ff .*[0-9]\.jpg$"
+
+Benchmark #1: find . -iregex '.*[0-9]\.jpg$'
+  Time (mean ± σ):      42.8 ms ±   5.5 ms    [User: 11.7 ms, System: 30.1 ms]
+  Range (min … max):    31.2 ms …  56.9 ms    48 runs
+
+Benchmark #2: find . -iname '*[0-9].jpg'
+  Time (mean ± σ):      60.8 ms ±   7.2 ms    [User: 27.9 ms, System: 31.4 ms]
+  Range (min … max):    44.0 ms …  76.2 ms    37 runs
+
+Benchmark #3: fd -HI '.*[0-9]\.jpg$'
+  Time (mean ± σ):      18.8 ms ±   5.3 ms    [User: 14.9 ms, System: 19.9 ms]
+  Range (min … max):    11.2 ms …  41.6 ms    96 runs
+
+Benchmark #4: ff .*[0-9]\.jpg$
+  Time (mean ± σ):      18.7 ms ±   4.6 ms    [User: 15.7 ms, System: 22.5 ms]
+  Range (min … max):    11.7 ms …  30.4 ms    123 runs
+
+Summary
+  'ff .*[0-9]\.jpg$' ran
+    1.00 ± 0.37 times faster than 'fd -HI '.*[0-9]\.jpg$''
+    2.29 ± 0.63 times faster than 'find . -iregex '.*[0-9]\.jpg$''
+    3.25 ± 0.88 times faster than 'find . -iname '*[0-9].jpg'
+```
+
+| Command | Mean [ms] | Min…Max [ms] |
+|:---|---:|---:|
+| `find . -iregex '.*[0-9]\.jpg$'` | 42.8 ± 5.5 | 31.2…56.9 |
+| `find . -iname '*[0-9].jpg'` | 60.8 ± 7.2 | 44.0…76.2 |
+| `fd -HI '.*[0-9]\.jpg$'` | 18.8 ± 5.3 | 11.2…41.6 |
+| `ff .*[0-9]\.jpg$` | 18.7 ± 4.6 | 11.7…30.4 |
+
+Table: *benchmark-results.md*
+
+**NOTE:** Sometimes, `fd` is a bit faster than `ff` by approximately `1 ms` to `2 ms`.
+
 ## Usage
 
 ```
@@ -56,10 +101,10 @@ ARGS:
 There are a tons of possibilities to search files using `ff`.
 Following examples demonstrate just a tip of an iceberg.
 
-- List paths of files recursively in the current working directory matching `article_` string.
+- List paths of files recursively in the current working directory matching `article` string.
 
 ```
-ff article_
+ff article
 ```
 
 - List files having `.png`, or `.PNG` extension.

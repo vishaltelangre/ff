@@ -1,11 +1,15 @@
 [package]
 name = "find-files"
-version = "0.1.5"
+version = "0.1.6"
 description = "Find Files (ff) utility recursively searches the files whose names match the specified RegExp pattern in the provided directory (defaults to the current directory if not provided)."
 authors = ["Vishal Telangre <the@vishaltelangre.com>"]
 license = "Unlicense OR MIT"
 readme = "README.md"
 repository = "https://github.com/vishaltelangre/ff"
+
+[build-dependencies]
+lazy_static = "1.1.0"
+clap = "2.31.2"
 
 [dependencies]
 walkdir = "2"
@@ -18,12 +22,12 @@ num_cpus = "1.0"
 
 [dependencies.clap]
 version = "2.32"
-default-features = false
 features = [ "suggestions", "color" ]
-
-[build-dependencies]
-lazy_static = "1.1.0"
 
 [[bin]]
 name = "ff"
 path = "src/main.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
