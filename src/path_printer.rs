@@ -29,7 +29,7 @@ impl<'a> PathPrinter<'a> {
             Some(result) => {
                 let matched_str = &self.path[result.start()..result.end()];
                 let colored_match = Green.bold().paint(matched_str).to_string();
-                let path = &self.path.replace(matched_str, &colored_match);
+                let path = self.path.replace(matched_str, &colored_match);
 
                 println!("{}", path);
             }
