@@ -31,6 +31,12 @@ pub fn app() -> ArgMatches<'static> {
                 .required(false),
         )
         .arg(
+            Arg::with_name("exclude-directories")
+                .help("Exclude paths from the search result which are directories and not files.")
+                .short("D")
+                .long("exclude-dir-paths"),
+        )
+        .arg(
             Arg::with_name("ignore-hidden")
                 .help("Ignore searching hidden files and directories. By default, hidden files and directories are included in the search results.")
                 .short("H")
