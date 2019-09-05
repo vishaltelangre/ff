@@ -53,12 +53,12 @@ Summary
     3.25 ± 0.88 times faster than 'find . -iname '*[0-9].jpg'
 ```
 
-| Command | Mean [ms] | Min…Max [ms] |
-|:---|---:|---:|
-| `find . -iregex '.*[0-9]\.jpg$'` | 42.8 ± 5.5 | 31.2…56.9 |
-| `find . -iname '*[0-9].jpg'` | 60.8 ± 7.2 | 44.0…76.2 |
-| `fd -HI '.*[0-9]\.jpg$'` | 18.8 ± 5.3 | 11.2…41.6 |
-| `ff .*[0-9]\.jpg$` | 18.7 ± 4.6 | 11.7…30.4 |
+| Command                          |  Mean [ms] | Min…Max [ms] |
+| :------------------------------- | ---------: | -----------: |
+| `find . -iregex '.*[0-9]\.jpg$'` | 42.8 ± 5.5 |    31.2…56.9 |
+| `find . -iname '*[0-9].jpg'`     | 60.8 ± 7.2 |    44.0…76.2 |
+| `fd -HI '.*[0-9]\.jpg$'`         | 18.8 ± 5.3 |    11.2…41.6 |
+| `ff .*[0-9]\.jpg$`               | 18.7 ± 4.6 |    11.7…30.4 |
 
 Table: *benchmark-results.md*
 
@@ -71,17 +71,19 @@ USAGE:
     ff [FLAGS] [OPTIONS] <PATTERN> [ROOT_PATH]
 
 FLAGS:
-    -s, --case-sensitive      Search case sensitively. By default, files are
-                              searched case insensitively.
-    -h, --help                Prints help information
-    -G, --ignore-gitignore    Ignore searching files and directories specified
-                              in .gitignore. By default, the files and
-                              directories specified in .gitignore are included
-                              in the search results.
-    -H, --ignore-hidden       Ignore searching hidden files and directories. By
-                              default, hidden files and directories are included
-                              in the search results.
-    -V, --version             Prints version information
+    -s, --case-sensitive       Search case sensitively. By default, files are
+                               searched case insensitively.
+    -D, --exclude-dir-paths    Exclude paths from the search result which are
+                               directories and not files.
+    -h, --help                 Prints help information
+    -G, --ignore-gitignore     Ignore searching files and directories specified
+                               in .gitignore. By default, the files and
+                               directories specified in .gitignore are included
+                               in the search results.
+    -H, --ignore-hidden        Ignore searching hidden files and directories. By
+                               default, hidden files and directories are
+                               included in the search results.
+    -V, --version              Prints version information
 
 OPTIONS:
     -x, --exclude <exclude>    Exclude files and directories matching this
@@ -159,6 +161,30 @@ ff src/.*js$ -G
 ```
 
 Without `-G (--ignore-gitignore)` flag in the above command, it also includes the results in the directories such as `node_modules` by default.
+
+- Do not show paths which are just directories and not actual files.
+
+```bash
+$ ff -D user
+
+./app/models/user.rb
+./app/models/user/address.rb
+./specs/models/user_spec.rb
+./specs/models/user/address_spec.rb
+```
+
+Without `-D (--exclude-dir-paths)` flag in the above command, it also includes the paths of the matching directories in the results as follows.
+
+```bash
+$ ff user
+
+./app/models/user.rb
+./app/models/user
+./app/models/user/address.rb
+./specs/models/user_spec.rb
+./specs/models/user
+./specs/models/user/address_spec.rb
+```
 
 - Exclude (omit) files and directories which match the provided optional exclude RegExp pattern.
 

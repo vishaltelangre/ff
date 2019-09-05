@@ -40,21 +40,26 @@ impl<'a> Walker<'a> {
         walker.run(|| {
             let tx = tx.clone();
             let reg_exp = self.args.reg_exp.clone();
+            let exclude_directories = self.args.exclude_directories.clone();
             let maybe_exclude_reg_exp = self.args.exclude_reg_exp.clone();
             let working_dir_path = working_dir_path.clone();
 
             Box::new(move |path_entry| {
                 if let Ok(entry) = path_entry {
-                    let path = entry.path().display().to_string();
-                    let path = truncate_working_dir_path(path, &working_dir_path);
-
-                    if is_match(&reg_exp, &maybe_exclude_reg_exp, &path) {
-                        match tx.send(path) {
-                            Ok(_) => WalkState::Continue,
-                            Err(_) => WalkState::Quit,
-                        }
-                    } else {
+                    if exclude_directories && !entry.path().is_file() {
                         WalkState::Continue
+                    } else {
+                        let path = entry.path().display().to_string();
+                        let path = truncate_working_dir_path(path, &working_dir_path);
+
+                        if is_match(&reg_exp, &maybe_exclude_reg_exp, &path) {
+                            match tx.send(path) {
+                                Ok(_) => WalkState::Continue,
+                                Err(_) => WalkState::Quit,
+                            }
+                        } else {
+                            WalkState::Continue
+                        }
                     }
                 } else {
                     WalkState::Continue

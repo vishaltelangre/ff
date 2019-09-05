@@ -12,6 +12,7 @@ use crate::app;
 pub struct Args {
     pub reg_exp: Regex,
     pub root_path: String,
+    pub exclude_directories: bool,
     pub ignore_gitignore: bool,
     pub ignore_hidden: bool,
     pub case_sensitive: bool,
@@ -36,6 +37,10 @@ impl Args {
 impl ArgMatchesWrapper {
     fn is_case_sensitive(&self) -> bool {
         self.matches.is_present("case-sensitive")
+    }
+
+    fn should_exclude_directories(&self) -> bool {
+        self.matches.is_present("exclude-directories")
     }
 
     fn should_ignore_gitignore_files(&self) -> bool {
@@ -122,6 +127,7 @@ impl ArgMatchesWrapper {
     fn to_args(&self) -> Args {
         Args {
             root_path: self.root_path(),
+            exclude_directories: self.should_exclude_directories(),
             ignore_hidden: self.should_ignore_hidden_files(),
             ignore_gitignore: self.should_ignore_gitignore_files(),
             case_sensitive: self.is_case_sensitive(),
