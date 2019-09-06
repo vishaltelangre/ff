@@ -16,6 +16,7 @@ pub struct Args {
     pub ignore_gitignore: bool,
     pub ignore_hidden: bool,
     pub case_sensitive: bool,
+    pub level: Option<usize>,
     pub threads: usize,
     pub exclude_reg_exp: Option<Regex>,
 }
@@ -76,6 +77,12 @@ impl ArgMatchesWrapper {
         }
     }
 
+    fn level(&self) -> Option<usize> {
+        let matches = &self.matches;
+
+        clap::value_t!(matches.value_of("level"), usize).ok()
+    }
+
     fn threads(&self) -> usize {
         let matches = &self.matches;
         let threads = clap::value_t!(matches.value_of("threads"), usize).unwrap_or(0);
@@ -132,6 +139,7 @@ impl ArgMatchesWrapper {
             ignore_gitignore: self.should_ignore_gitignore_files(),
             case_sensitive: self.is_case_sensitive(),
             reg_exp: self.search_pattern(),
+            level: self.level(),
             threads: self.threads(),
             exclude_reg_exp: self.exclude_reg_exp(),
         }

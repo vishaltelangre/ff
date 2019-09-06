@@ -55,6 +55,13 @@ pub fn app() -> ArgMatches<'static> {
                 .long("case-sensitive"),
         )
         .arg(
+            Arg::with_name("level")
+                .help("Recursively search only given level directories deep. By default no depth restriction is imposed. A value of 0 would always yield zero results. A value of 1 searches for the direct children in the given path.")
+                .short("L")
+                .takes_value(true)
+                .long("level"),
+        )
+        .arg(
             Arg::with_name("threads")
                 .help("The approximate number of threads to use. A value of 0 (which is the default) results in thread count set to available CPU cores.")
                 .short("j")
