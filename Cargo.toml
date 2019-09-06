@@ -1,6 +1,6 @@
 [package]
 name = "find-files"
-version = "0.1.7"
+version = "0.1.8"
 description = "Find Files (ff) utility recursively searches the files whose names match the specified RegExp pattern in the provided directory (defaults to the current directory if not provided)."
 authors = ["Vishal Telangre <the@vishaltelangre.com>"]
 license = "Unlicense OR MIT"

@@ -88,6 +88,11 @@ FLAGS:
 OPTIONS:
     -x, --exclude <exclude>    Exclude files and directories matching this
                                regular expression from the search results.
+    -L, --level <level>        Recursively search only given level directories
+                               deep. By default no depth restriction is imposed.
+                               A value of 0 would always yield zero results. A
+                               value of 1 searches for the direct children in
+                               the given path.
     -j, --threads <threads>    The approximate number of threads to use. A value
                                of 0 (which is the default) results in thread
                                count set to available CPU cores.
@@ -105,91 +110,97 @@ Following examples demonstrate just a tip of an iceberg.
 
 - List paths of files recursively in the current working directory matching `article` string.
 
-```
-ff article
-```
+    ```
+    ff article
+    ```
 
 - List files having `.png`, or `.PNG` extension.
 
-```
-ff png$
-```
+    ```
+    ff png$
+    ```
 
 - List files having strict `.PNG` extension.
 
-```
-ff -s PNG$
-```
+    ```
+    ff -s PNG$
+    ```
 
 - Search various image files.
 
-```
-ff "\.(png|jpg|jpeg|gif|svg)$"
-```
+    ```
+    ff "\.(png|jpg|jpeg|gif|svg)$"
+    ```
 
 - List files whose path matches `controllers` string.
 
-```
-ff controllers
-```
+    ```
+    ff controllers
+    ```
 
 - Search `.js` files in `./spec` directory.
 
-```
-ff \.js ./spec
-```
+    ```
+    ff \.js ./spec
+    ```
 
 - Search a file which is expected to be inside hidden `.git` directory whose name contains `commit` or something similar.
 
-```bash
-$ ff git.*commit
+    ```bash
+    $ ff git.*commit
 
-./.git/COMMIT_EDITMSG
-# omitted other results
-```
+    ./.git/COMMIT_EDITMSG
+    # omitted other results
+    ```
 
 - Do not show hidden files and directories in the search results.
 
-```
-ff something -H
-```
+    ```
+    ff something -H
+    ```
 
 - Do not show those files and directories in the search results which are enlisted in `.gitignore`.
 
-```
-ff src/.*js$ -G
-```
+    ```
+    ff src/.*js$ -G
+    ```
 
-Without `-G (--ignore-gitignore)` flag in the above command, it also includes the results in the directories such as `node_modules` by default.
+    Without `-G (--ignore-gitignore)` flag in the above command, it also includes the results in the directories such as `node_modules` by default.
 
 - Do not show paths which are just directories and not actual files.
 
-```bash
-$ ff -D user
+    ```bash
+    $ ff -D user
 
-./app/models/user.rb
-./app/models/user/address.rb
-./specs/models/user_spec.rb
-./specs/models/user/address_spec.rb
-```
+    ./app/models/user.rb
+    ./app/models/user/address.rb
+    ./specs/models/user_spec.rb
+    ./specs/models/user/address_spec.rb
+    ```
 
-Without `-D (--exclude-dir-paths)` flag in the above command, it also includes the paths of the matching directories in the results as follows.
+    Without `-D (--exclude-dir-paths)` flag in the above command, it also includes the paths of the matching directories in the results as follows.
 
-```bash
-$ ff user
+    ```bash
+    $ ff user
 
-./app/models/user.rb
-./app/models/user
-./app/models/user/address.rb
-./specs/models/user_spec.rb
-./specs/models/user
-./specs/models/user/address_spec.rb
-```
+    ./app/models/user.rb
+    ./app/models/user
+    ./app/models/user/address.rb
+    ./specs/models/user_spec.rb
+    ./specs/models/user
+    ./specs/models/user/address_spec.rb
+    ```
 
 - Exclude (omit) files and directories which match the provided optional exclude RegExp pattern.
 
-```
-ff rb$ app/controllers -x /(audit|admin|sso|api)/
-```
+    ```
+    ff rb$ app/controllers -x /(audit|admin|sso|api)/
+    ```
 
-Above command will show paths of all files whose name ends with `rb` inside the relative `app/controllers` directory excluding the paths which match `/(audit|admin|sso|api)/` pattern.
+    Above command will show paths of all files whose name ends with `rb` inside the relative `app/controllers` directory excluding the paths which match `/(audit|admin|sso|api)/` pattern.
+
+- Limit searching beyond 3 levels deep in the given path.
+
+    ```
+    ff -L 3 .js$
+    ```
