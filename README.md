@@ -15,7 +15,17 @@ Dual-licensed under [MIT](LICENSE-MIT) or the [UNLICENSE](UNLICENSE).
 
 ## Installation
 
+There are various ways to install `ff` on your system.
+
+### Install using Homebrew
+
+If you use macOS, install `ff` simply using `brew install vishaltelangre/tap/ff`.
+
+### Download precompiled executables for your platform/OS
+
 Download the latest precompiled executable `ff` binary for your platform from the [releases](https://github.com/vishaltelangre/ff/releases) page.
+
+### Install using Cargo
 
 If you're a Rust programmer, download and install `ff` command using `cargo install find-files`. To update to a newer version, use the `--force` flag.
 
