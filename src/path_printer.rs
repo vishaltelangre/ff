@@ -8,7 +8,9 @@ pub struct PathPrinter<'a> {
 }
 
 impl<'a> PathPrinter<'a> {
-    pub fn new(path: String, reg_exp: &Regex) -> PathPrinter {
+    pub fn new(mut path: String, reg_exp: &Regex) -> PathPrinter {
+        path = path.replace(r"\", "/");
+
         PathPrinter { path, reg_exp }
     }
 
